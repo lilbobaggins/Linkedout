@@ -1,0 +1,2332 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LinkedOut — Real talk about companies</title>
+<style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background: background: linear-gradient(180deg, #fdebd3 0%, #fff0e6 50%, #ffe5dc 100%);color:#1e293b;line-height:1.6}
+
+/* Header */
+.header{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.nav{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;color:#0f172a;cursor:pointer}
+.logo-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;background:#3b82f6}
+.beta-badge{background:#3b82f6;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:800}
+#userChip{display:none;background:#e8f0ff;color:#1d4ed8;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.nav-links{display:flex;gap:24px;align-items:center;transition:transform .3s ease}
+.nav-link{color:#64748b;text-decoration:none;font-weight:600;cursor:pointer;transition:color .2s}
+.nav-link:hover,.nav-link.active{color:#0f172a}
+.btn{padding:8px 14px;border-radius:10px;font-weight:700;text-decoration:none;transition:all .15s;border:none;cursor:pointer;font-size:14px}
+.btn-primary{background:#3b82f6;color:#fff}
+.btn-primary:hover{background:#2563eb}
+.btn-outline{border:1px solid #d1d5db;color:#374151;background:#fff}
+.btn-outline:hover{background:#f3f4f6}
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  gap: 6px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 130; /* above drawer */
+}
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #0f172a;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+/* Animate to "X" when open */
+.hamburger.open span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.open span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Overlay */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:90}
+.overlay.open{opacity:1;pointer-events:auto}
+
+/* Prevent body scroll when drawer open */
+body.no-scroll{overflow:hidden}
+
+/* Mobile drawer behavior */
+@media (max-width: 768px){
+  .hamburger{display:flex}
+
+  /* Turn links into a drawer */
+  .nav-links{
+    position:fixed;
+    top:0; right:0;
+    height:100%; width:260px;
+    background:#fff;
+    flex-direction:column;
+    align-items:flex-start;
+    padding:80px 20px 20px;
+    gap:20px;
+    border-left:1px solid #e2e8f0;
+    box-shadow:-2px 0 8px rgba(0,0,0,.1);
+    transform:translateX(100%); /* hidden by default */
+    z-index:120; /* above overlay & header */
+  }
+  .nav-links.open{
+    transform:translateX(0); /* slide in */
+  }
+}
+
+
+    /* Page */
+    .page{display:none}
+    .page.active{display:block}
+
+    /* Home */
+    .hero{max-width:1200px;margin:0 auto;padding:72px 24px;text-align:center}
+    .hero h1{font-size:52px;font-weight:900;margin-bottom:18px;line-height:1.1}
+    .hero .highlight{background:linear-gradient(135deg,#f59e0b,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero p{font-size:18px;color:#64748b;max-width:720px;margin:0 auto 8px}
+    .disclaimer{font-size:12px;color:#94a3b8;margin:12px 0 36px}
+    .search-hero{max-width:600px;margin:0 auto 40px;position:relative}
+    .search-input{width:100%;padding:14px 18px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:16px;transition:border-color .2s}
+    .search-input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+    .search-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:#3b82f6;color:#fff;border:none;padding:10px 16px;border-radius:10px;font-weight:800;cursor:pointer}
+
+    .stats{background:#fff;border-radius:16px;padding:28px;box-shadow:0 1px 3px rgba(0,0,0,.08);max-width:1200px;margin:0 auto 40px}
+    .stats h3{text-align:center;color:#64748b;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:22px}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;text-align:center}
+    .stat-item h4{font-size:30px;font-weight:900;color:#0f172a}
+    .stat-item p{color:#64748b;font-size:13px;margin-top:4px}
+
+    .main-content{max-width:1200px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr 380px;gap:40px;align-items:start}
+    @media (max-width:900px){.main-content{grid-template-columns:1fr}}
+    .section-title{font-size:22px;font-weight:800;margin:0 0 16px;color:#0f172a}
+
+    /* Review cards */
+    .review-card{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.08);border-left:3px solid transparent}
+    .review-card.positive{border-left-color:#10b981}
+    .review-card.neutral{border-left-color:#f59e0b}
+    .review-card.negative{border-left-color:#ef4444}
+    .review-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .company-logo{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff}
+    .tag{padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;margin-right:6px}
+    .tag.interview{background:#dbeafe;color:#1d4ed8}
+    .tag.workplace{background:#fee2e2;color:#b91c1c}
+    .tag.general{background:#dcfce7;color:#166534}
+    .stars{color:#f59e0b}
+    .review-text{color:#374151;margin:8px 0 12px}
+    .review-footer{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#64748b}
+    .linkedin-link{color:#0077b5;text-decoration:none;font-weight:700}
+    .linkedin-link:hover{text-decoration:underline}
+    .no-reviews{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);padding:40px;text-align:center;color:#64748b}
+
+    /* Write form */
+    .post-form{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);position:sticky;top:84px}
+    .form-group{margin-bottom:14px}
+    .form-label{display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:13px}
+    .form-input,.form-select,.form-textarea{width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:#3b82f6}
+    .form-textarea{resize:vertical;min-height:100px}
+    .submit-btn{width:100%;background:#3b82f6;color:#fff;border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer}
+    .submit-btn:hover{background:#2563eb}
+@media (max-width: 900px) {
+  .hero {
+    padding: 56px 20px;
+  }
+  .hero h1 {
+    font-size: 40px;
+    line-height: 1.2;
+  }
+  .hero p {
+    font-size: 16px;
+  }
+  .search-hero {
+    margin: 0 auto 30px;
+  }
+  .search-input {
+    font-size: 15px;
+    padding: 12px 14px;
+  }
+  .search-btn {
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+  .main-content {
+    grid-template-columns: 1fr; /* already handled */
+    gap: 24px;
+    padding: 0 16px;
+  }
+  .post-form {
+    position: static;
+    margin-top: 20px;
+  }
+}
+
+/* Mobile (<=600px) */
+@media (max-width: 600px) {
+  .hero {
+    padding: 40px 16px;
+  }
+  .hero h1 {
+    font-size: 28px;
+  }
+  .hero p {
+    font-size: 14px;
+  }
+  .disclaimer {
+    font-size: 11px;
+  }
+  .search-hero {
+    max-width: 100%;
+  }
+  .search-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .search-input {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+  .search-btn {
+    width: 100%;
+    position: static;
+    transform: none;
+    padding: 10px;
+    font-size: 14px;
+    margin-top: 6px;
+  }
+  .quick-review-btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+  .stats {
+    padding: 20px;
+  }
+  .stat-item h4 {
+    font-size: 22px;
+  }
+  .stat-item p {
+    font-size: 12px;
+  }
+  .section-title {
+    font-size: 18px;
+  }
+  .review-card {
+    padding: 16px;
+  }
+  .review-text {
+    font-size: 14px;
+  }
+  .submit-btn {
+    font-size: 14px;
+    padding: 10px;
+  }
+}
+    /* Browse */
+    .page-header{max-width:1200px;margin:0 auto;padding:36px 24px}
+    .page-title{font-size:30px;font-weight:900;margin-bottom:6px}
+    .page-subtitle{color:#64748b;margin-bottom:20px}
+    .filter-controls{display:flex;gap:12px;align-items:center;margin-top:12px}
+    .filter-select{padding:10px 12px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-weight:700}
+    .companies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;max-width:1200px;margin:0 auto 48px;padding:0 24px}
+    .company-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer;transition:transform .15s,box-shadow .15s}
+    .company-card:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.12)}
+    .company-header{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+    .company-info h3{font-size:18px;font-weight:900}
+    .company-info p{color:#64748b;font-size:12px;margin-top:2px}
+    .company-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+    .stat{background:#f8fafc;border-radius:10px;padding:10px;text-align:center}
+    .stat-number{font-size:18px;font-weight:900}
+    .stat-label{font-size:11px;color:#64748b}
+    .overall-rating{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border-radius:10px;padding:10px}
+    .rating-number{font-size:22px;font-weight:900}
+    .rating-stars{color:#f59e0b}
+    .rating-sentiment{font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px}
+    .rating-sentiment.positive{background:#dcfce7;color:#166534}
+    .rating-sentiment.neutral{background:#fef3c7;color:#92400e}
+    .rating-sentiment.negative{background:#fee2e2;color:#991b1b}
+
+    /* Guidelines */
+    .guidelines-content{max-width:800px;margin:0 auto 48px;padding:0 24px}
+    .guidelines-section{background:#fff;border-radius:12px;padding:24px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+    .guidelines-section h3{font-size:18px;font-weight:900;margin-bottom:10px}
+    .guidelines-list{list-style:none}
+    .guidelines-list li{display:flex;gap:10px;border-bottom:1px solid #eef2f7;padding:10px 0;color:#374151}
+    .guidelines-list li:last-child{border-bottom:none}
+    .list-icon{color:#3b82f6;font-weight:900}
+
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px)}
+    .modal-overlay.show{display:flex}
+    .modal{background:#fff;border-radius:16px;padding:28px;width:90%;max-width:420px;box-shadow:0 20px 40px rgba(0,0,0,.2);transform:scale(.9);opacity:0;transition:all .2s}
+    .modal-overlay.show .modal{transform:scale(1);opacity:1}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .modal-title{font-size:22px;font-weight:900;margin:0}
+    .close-btn{background:none;border:none;font-size:24px;color:#64748b;cursor:pointer;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+    .close-btn:hover{background:#f1f5f9;color:#0f172a}
+    .modal-subtitle{color:#64748b;margin-bottom:16px}
+
+    /* Toast / Thank-you overlays */
+    .thank-you-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1001;backdrop-filter:blur(4px)}
+    .thank-you-overlay.show{display:flex}
+    .thank-you-message{background:#fff;border-radius:16px;padding:28px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.2);border:3px solid #10b981;transform:scale(.85);opacity:0;transition:all .2s}
+    .thank-you-overlay.show .thank-you-message{transform:scale(1);opacity:1}
+    .thank-you-icon{font-size:46px;margin-bottom:8px}
+    .thank-you-title{font-size:20px;font-weight:900;margin-bottom:4px}
+    .thank-you-text{color:#64748b}
+
+    @media (max-width:700px){
+      .hero h1{font-size:38px}
+      .stats-grid{grid-template-columns:1fr;gap:16px}
+    }
+
+    /* --- New: Comments & Replies & Upvotes --- */
+    .actions{display:flex;gap:10px;align-items:center;margin-top:10px}
+    .chip{border:1px solid #e2e8f0;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700;color:#374151;background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+    .chip[aria-pressed="true"]{border-color:#10b981;background:#ECFDF5;color:#065F46}
+    .chip:disabled{opacity:.5;cursor:not-allowed}
+
+    .comment-area{margin-top:12px}
+    .comment-input{width:100%;min-height:60px;border:2px solid #e2e8f0;border-radius:10px;padding:10px;font-size:14px;resize:vertical}
+    .comment-actions{display:flex;gap:8px;margin-top:8px}
+
+    .comment-list{margin-top:12px;border-top:1px dashed #e5e7eb;padding-top:10px}
+    .comment{display:flex;gap:10px;margin:10px 0}
+    .comment-body{background: background: linear-gradient(180deg, #fdebd3 0%, #fff0e6 50%, #ffe5dc 100%);border:1px solid #e5e7eb;border-radius:10px;padding:10px;flex:1}
+    .comment-meta{font-size:12px;color:#64748b;margin-bottom:6px;display:flex;gap:8px;align-items:center}
+    .reply-btn{background:none;border:none;color:#3b82f6;font-weight:700;cursor:pointer;font-size:12px}
+    .nested{margin-left:36px}
+
+    /* Color palette for initials */
+    .color-0{background:#3b82f6}
+    .color-1{background:#ef4444}
+    .color-2{background:#10b981}
+    .color-3{background:#f59e0b}
+    .color-4{background:#8b5cf6}
+    .color-5{background:#ec4899}
+    .color-6{background:#14b8a6}
+    .color-7{background:#f97316}
+  
+/* --- Aligned search + write button --- */
+.search-review-container{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:12px}
+.search-box{display:flex;align-items:center;gap:8px;width:100%;max-width:600px;background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:6px}
+.search-box .search-input{flex:1;border:none;outline:none}
+.search-box .search-btn{position:static;transform:none;padding:10px 16px}
+
+  </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+  <nav class="nav">
+    <!-- Logo -->
+    <div class="logo" onclick="showPage('home')">
+      <div class="logo-icon">LO</div>
+      <span>LinkedOut</span>
+      <span class="beta-badge">beta</span>
+      <span id="userChip"></span>
+    </div>
+
+    <!-- Hamburger (mobile only) -->
+    <button
+      class="hamburger"
+      id="hamburger"
+      aria-controls="navLinks"
+      aria-expanded="false"
+      aria-label="Toggle menu"
+    >
+      <span></span><span></span><span></span>
+    </button>
+
+    <!-- Links (mobile drawer) -->
+    <div class="nav-links" id="navLinks">
+      <a class="nav-link" id="browse-nav" onclick="showPage('browse')">Browse</a>
+      <a class="nav-link" id="guidelines-nav" onclick="showPage('guidelines')">Guidelines</a>
+      <a class="nav-link" id="profile-nav" onclick="showPage('profile')" style="display:none;">Profile</a>
+      <button class="btn btn-outline" id="signInBtn" onclick="showSignInModal()">Sign In</button>
+      <button class="btn btn-primary" id="signUpBtn" onclick="showSignUpModal()">Sign Up</button>
+    </div>
+  </nav>
+</header>
+
+<!-- Overlay for the drawer -->
+<div id="overlay" class="overlay"></div>
+<!-- Auth Modal -->
+<div class="modal-overlay" id="authModal" onclick="if(event.target===this) hideAuthModal()">
+<div class="modal">
+<div class="modal-header">
+<h2 class="modal-title" id="authTitle">Create Account</h2>
+<button aria-label="Close" class="close-btn" onclick="hideAuthModal()">×</button>
+</div>
+<p class="modal-subtitle" id="authSubtitle">Join LinkedOut to share your experiences and help others.</p>
+<div id="authFormContainer">
+<div class="form-group" id="nameGroup">
+<label class="form-label" for="authName">Name</label>
+<input class="form-input" id="authName" placeholder="Your name" type="text"/>
+</div>
+<div class="form-group">
+<label class="form-label" for="authEmail">Email</label>
+<input class="form-input" id="authEmail" placeholder="you@example.com" type="email"/>
+</div>
+<div class="form-group">
+<label class="form-label" for="authPassword">Password</label>
+<input class="form-input" id="authPassword" placeholder="Password" type="password"/>
+</div>
+<button class="btn btn-primary" onclick="processAuth()" style="width:100%" type="button">Create Account</button>
+<div style="margin-top:12px;text-align:center">
+<button class="btn btn-outline" id="googleSignInBtn" style="width:100%">Continue with Google</button>
+</div>
+<div class="modal-footer" style="margin-top:12px;text-align:center;color:#64748b;font-size:14px;">
+<span id="switchText">Already have an account?</span>
+           <a href="javascript:void(0)" id="switchLink" onclick="toggleAuthMode()" style="color:#3b82f6;font-weight:800;text-decoration:none;">Sign in here</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Auth confirmation toast -->
+<div class="thank-you-overlay" id="authConfirm">
+<div class="thank-you-message" style="border-color:#3b82f6">
+<div class="thank-you-icon">✅</div>
+<div class="thank-you-title">You’re in!</div>
+<div class="thank-you-text">Welcome — happy reviewing.</div>
+</div>
+</div>
+<!-- Home Page -->
+<div class="page active" id="home-page">
+<section class="hero">
+<h1>Your place for unfiltered <span class="highlight">job venting.</span></h1>
+<p>Share candid experiences. Link a company’s public profile and leave a review. We’re not affiliated with LinkedIn or any employer.</p>
+<p class="disclaimer">Disclaimer: “LinkedOut” is a working title and not affiliated with LinkedIn®.</p>
+<div class="search-hero">
+<div class="search-review-container">
+<div class="search-box">
+<input class="search-input" id="heroSearchInput" placeholder="Search companies"/>
+<!-- <button class="search-btn" onclick="searchFromHero()">Search</button> -->
+<button class="search-btn"  onclick="goToBrowse()">Search</button>
+
+</div>
+<button class="btn btn-primary quick-review-btn" onclick="scrollToForm()" type="button">Write a review</button>
+</div>
+</div>
+</section>
+<section class="stats">
+<h3 id="statsTitle">Top companies this week</h3>
+<div class="stats-grid" id="statsGrid"></div>
+<p id="statsCaption" style="text-align:center;color:#94a3b8;font-size:12px;margin-top:10px;">Based on reviews posted in the last 7 days.</p>
+</section>
+<div class="main-content">
+<div>
+<h2 class="section-title">Recent Reviews</h2>
+<div id="reviewsFeed"></div>
+</div>
+<aside class="post-form" id="postForm">
+<h2 class="section-title" style="margin-bottom:12px">Write a review</h2>
+<form id="reviewForm">
+<div class="form-group">
+<label class="form-label">Company Name *</label>
+<input class="form-input" id="companyName" required=""/>
+</div>
+<div class="form-group">
+<label class="form-label">Review Type</label>
+<select class="form-select" id="reviewType">
+<option value="interview">Interview Experience</option>
+<option value="workplace">Workplace Culture</option>
+<option value="general">General Review</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">Overall Rating</label>
+<select class="form-select" id="rating">
+<option value="positive">Positive</option>
+<option value="neutral">Neutral</option>
+<option value="negative">Negative</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">Your Review *</label>
+<textarea class="form-textarea" id="reviewText" placeholder="Share your experience..." required=""></textarea>
+</div>
+<div class="form-group">
+<label class="form-label">Linked Profile (Optional)</label>
+<input class="form-input" id="linkedinUrl" placeholder="https://linkedin.com/in/yourprofile" type="url"/>
+</div>
+<div class="form-group">
+<label class="form-label">Job Posting Link (Optional)</label>
+<input class="form-input" id="jobPostingUrl" placeholder="https://company.com/jobs/role-id" type="url"/>
+</div>
+<button class="submit-btn" type="submit">Post Review</button>
+</form>
+</aside>
+</div>
+</div>
+<!-- Browse Page -->
+<div class="page" id="browse-page">
+<div class="page-header">
+<h1 class="page-title">Browse Companies</h1>
+<p class="page-subtitle">Recently reviewed companies ranked by community feedback</p>
+<div class="filter-controls">
+<select class="filter-select" id="sortFilter">
+<option value="worst-first">Worst Reviewed First</option>
+<option value="best-first">Best Reviewed First</option>
+<option value="most-reviews">Most Reviews</option>
+<option value="recent">Recently Reviewed</option>
+</select>
+<input class="search-input" id="companySearchInput" placeholder="Search companies..." style="max-width:300px"/>
+<button class="btn btn-primary" id="browseSearchBtn" style="padding:10px 14px;border-radius:10px;font-weight:800" type="button">Search</button>
+</div>
+</div>
+<div class="companies-grid" id="companiesGrid"></div>
+<!-- Company Reviews on Browse (hidden until a company is selected) -->
+<!-- Company Reviews inline on Browse (simple view) -->
+<section id="browseCompanyReviews" style="display:none; max-width:1200px; margin:0 auto 48px; padding:0 24px;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin:6px 0 14px;">
+<h2 class="section-title" style="margin:0">Reviews for <span id="browseCompanyTitle"></span></h2>
+<div style="display:flex;gap:8px;align-items:center">
+<label for="companyReviewSort" style="font-size:13px;color:#64748b;font-weight:700">Sort</label>
+<select class="filter-select" id="companyReviewSort">
+<option value="newest">Newest</option>
+<option value="oldest">Oldest</option>
+<option value="best">Best first</option>
+<option value="worst">Worst first</option>
+</select>
+<button class="btn btn-outline" id="browseResetCompanies" type="button">Show all companies</button>
+</div>
+</div>
+<div id="browseCompanyReviewsList"></div>
+</section>
+</div>
+<!-- Guidelines Page -->
+<div class="page" id="guidelines-page">
+<div class="page-header">
+<h1 class="page-title">Community Guidelines</h1>
+<p class="page-subtitle">Help us maintain a trustworthy platform for honest company reviews</p>
+</div>
+<div class="guidelines-content">
+<div class="guidelines-section">
+<h3>🛡️ Review Authenticity</h3>
+<ul class="guidelines-list">
+<li><span class="list-icon">✓</span> Only post reviews based on your genuine experience.</li>
+<li><span class="list-icon">✓</span> Reviews should be about interviews or actual employment.</li>
+<li><span class="list-icon">✗</span> False or fabricated reviews will be removed; accounts may be restricted.</li>
+<li><span class="list-icon">✗</span> Don’t impersonate others or post on someone’s behalf.</li>
+</ul>
+</div>
+<div class="guidelines-section">
+<h3>🔍 Spam Prevention</h3>
+<ul class="guidelines-list">
+<li><span class="list-icon">✓</span> One review per company per experience.</li>
+<li><span class="list-icon">✓</span> Focus on specific, helpful details.</li>
+<li><span class="list-icon">✗</span> Repetitive or coordinated review campaigns are prohibited.</li>
+</ul>
+</div>
+<div class="guidelines-section">
+<h3>📝 Content Standards</h3>
+<ul class="guidelines-list">
+<li><span class="list-icon">✓</span> Be constructive and professional.</li>
+<li><span class="list-icon">✗</span> No personal attacks or doxxing.</li>
+<li><span class="list-icon">✗</span> Don’t share confidential info.</li>
+<li><span class="list-icon">✗</span> Avoid profanity or discriminatory language.</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Profile Page -->
+<div class="page" id="profile-page">
+<div class="page-header">
+<h1 class="page-title">Your Profile</h1>
+<p class="page-subtitle">Manage your reviews and profile settings</p>
+</div>
+<div style="max-width:800px;margin:0 auto 48px;padding:0 24px;">
+<div class="guidelines-section">
+<h3>👤 Profile Settings</h3>
+<div class="form-group">
+<label class="form-label">Display Name</label>
+<div style="display:flex;gap:10px;margin-bottom:8px;">
+<input class="form-input" id="displayName" placeholder="Enter your display name" style="flex:1"/>
+<button class="btn btn-outline" onclick="generateRandomName()">Random Name</button>
+</div>
+<p style="font-size:12px;color:#64748b;margin-top:4px">This is how your name will appear on reviews</p>
+</div>
+<div class="form-group">
+<label class="form-label">Profile Visibility</label>
+<select class="form-select" id="profileVisibility" onchange="updateProfileVisibility()">
+<option value="public">Public — Anyone can see my reviews</option>
+<option value="private">Private — Only I can see my reviews</option>
+</select>
+</div>
+<button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+<button class="btn btn-outline" onclick="signOutUser()" style="margin-left:8px">Sign Out</button>
+</div>
+<div class="guidelines-section">
+<h3>📝 Your Reviews (<span id="reviewCount">0</span>)</h3>
+<div id="userReviews"><p style="color:#64748b;text-align:center;padding:18px;">No reviews yet. <a onclick="showPage('home'); setTimeout(scrollToForm, 100)" style="color:#3b82f6;cursor:pointer">Write your first review!</a></p></div>
+</div>
+</div>
+</div>
+<!-- Test harness (optional UI) -->
+<div class="page" id="tests-page" style="display:none;padding:24px;max-width:800px;margin:40px auto;">
+<h2 class="section-title">Test Harness</h2>
+<button class="btn btn-outline" onclick="runTests()">Run smoke tests</button>
+<ul id="testResults" style="margin-top:12px;color:#374151"></ul>
+</div>
+
+<script>
+  // Replace your existing goToBrowse() with this version
+  function goToBrowse() {
+    const term = (document.getElementById('heroSearchInput')?.value || '').trim();
+
+    // Use your router — this shows #browse-page
+    if (typeof showPage === 'function') {
+      showPage('browse');
+    } else {
+      // Fallback if router isn't loaded for some reason
+      document.getElementById('browse-page')?.classList.add('active');
+      document.getElementById('home-page')?.classList.remove('active');
+    }
+
+    // Push the term into the browse search box and render
+    requestAnimationFrame(() => {
+      const input = document.getElementById('companySearchInput');
+      if (input) {
+        input.value = term;
+        // If your filtering listens to input events, fire one:
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      if (typeof renderCompanies === 'function') renderCompanies();
+
+      // Optional: focus search and scroll into view
+      input?.focus();
+      document.getElementById('browse-page')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  // Optional: press Enter in the hero box to trigger the same behavior
+  document.getElementById('heroSearchInput')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      goToBrowse();
+    }
+  });
+
+  // Optional: make the Browse page's “Search” button actually re-run filtering
+  document.getElementById('browseSearchBtn')?.addEventListener('click', () => {
+    if (typeof renderCompanies === 'function') renderCompanies();
+  });
+</script>
+
+<script type="module">
+    // Firebase CDN (modular)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
+           createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut } 
+    from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { getFirestore, collection, addDoc,getDoc,getDocs,updateDoc,increment ,serverTimestamp, doc, setDoc,arrayRemove,arrayUnion, onSnapshot, query, orderBy } 
+    from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  // Your Firebase project
+const firebaseConfig = {
+  apiKey: "AIzaSyAv7EEvMVa_sM83bxTgwV43gvUgUnJHu8Y",
+  authDomain: "linkedout-b7339.firebaseapp.com",
+  projectId: "linkedout-b7339",
+  storageBucket: "linkedout-b7339.firebasestorage.app",
+  messagingSenderId: "283378897962",
+  appId: "1:283378897962:web:f81fab0affcc70c77f1f53"
+};
+  // Initialize
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+    // ========= Utilities =========
+    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[m])); }
+
+    function getOrCreateAnonId(){
+      let id = localStorage.getItem('linkedout-anon-id');
+      if(!id){ id = 'anon_' + Math.random().toString(36).slice(2); localStorage.setItem('linkedout-anon-id', id); }
+      return id;
+    }
+
+    // ========= Initials-only avatars =========
+    function getCompanyInitials(name){ return (name||'').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+    function colorClassForCompany(name){ const colors=8; let hash=0; for(let i=0;i<(name||'').length;i++){ hash = name.charCodeAt(i) + ((hash<<5) - hash); } const idx = Math.abs(hash) % colors; return `color-${idx}`; }
+    function avatarOrLogo(review){ const name = review.company || 'Company'; const initials = getCompanyInitials(name); const colorClass = colorClassForCompany(name); return `<div class="company-logo ${colorClass}">${initials}</div>`; }
+
+    // ========= State =========
+    let currentPage = 'home';
+    let reviews = [];
+    let filteredReviews = [];
+    let currentUser = null;
+    let userProfile = { displayName:'', email:'', isPublic:true, joinDate:'', totalReviews:0, userReviews:[] };
+
+    // Stash a pending review to post after sign-in
+    window.__pendingReview = null;
+
+    const ADJECTIVES = ['Sassy','Cosmic','Sleepy','Spicy','Pixel','Turbo','Rusty','Giggly','Zesty','Nebula','Fuzzy','Wobbly','Snarky','Sneaky','Nimble','Glitchy','Loopy','Breezy','Chunky','Quirky'];
+    const NOUNS = ['Otter','Marmot','Taco','Pixel','Lemur','Banana','Nimbus','Cactus','Raccoon','Pancake','Muffin','Ferret','Noodle','Comet','Waffle','Piranha','Yeti','Pigeon','Koala','Walnut'];
+// ========= Auth Modals =========
+function showSignUpModal(){
+  document.getElementById('authTitle').textContent = 'Create Account';
+  document.getElementById('authSubtitle').textContent = 'Join LinkedOut to share your experiences and help others.';
+  document.getElementById('switchText').textContent = 'Already have an account?';
+  document.getElementById('switchLink').textContent = 'Sign in here';
+  document.getElementById('nameGroup').style.display = 'block';
+  document.getElementById('authModal').classList.add('show');
+  document.querySelector('#authFormContainer .btn-primary').textContent = 'Create Account';
+  document.body.style.overflow='hidden';
+}
+function showSignInModal(){
+  document.getElementById('authTitle').textContent = 'Sign In';
+  document.getElementById('authSubtitle').textContent = 'Welcome back! Enter your email and password to sign in.';
+  document.getElementById('switchText').textContent = "Don't have an account?";
+  document.getElementById('switchLink').textContent = 'Sign up here';
+  document.getElementById('nameGroup').style.display = 'block';
+  document.getElementById('authModal').classList.add('show');
+  document.querySelector('#authFormContainer .btn-primary').textContent = 'Sign In';
+  document.body.style.overflow='hidden';
+}
+ const navLinks = document.getElementById('navLinks');
+  const hamburger = document.getElementById('hamburger');
+  const overlay = document.getElementById('overlay');
+
+function openDrawer() {
+  navLinks.classList.add('open');
+  overlay.classList.add('open');
+  document.body.classList.add('no-scroll');
+  hamburger.setAttribute('aria-expanded', 'true');
+  hamburger.classList.add('open'); // NEW
+}
+
+function closeDrawer() {
+  navLinks.classList.remove('open');
+  overlay.classList.remove('open');
+  document.body.classList.remove('no-scroll');
+  hamburger.setAttribute('aria-expanded', 'false');
+  hamburger.classList.remove('open'); // NEW
+}
+
+
+  function toggleMenu() {
+    if (navLinks.classList.contains('open')) closeDrawer();
+    else openDrawer();
+  }
+
+  hamburger.addEventListener('click', toggleMenu);
+  overlay.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDrawer();
+  });
+function toggleAuthMode(){
+  const btnText = document.querySelector('#authFormContainer .btn-primary').textContent;
+  if(btnText === 'Sign In'){ showSignUpModal(); } else { showSignInModal(); }
+}
+function hideAuthModal(){
+  document.getElementById('authModal').classList.remove('show');
+  const n = document.getElementById('authName'); if(n) n.value='';
+  const e = document.getElementById('authEmail'); if(e) e.value='';
+  const p = document.getElementById('authPassword'); if(p) p.value='';
+  document.body.style.overflow='auto';
+}
+function showAuthConfirm(){ 
+  const o = document.getElementById('authConfirm'); 
+  if(!o) return; 
+  o.classList.add('show'); 
+  setTimeout(()=>o.classList.remove('show'),1200); 
+}
+
+async function processAuth(){
+  const mode = document.querySelector('#authFormContainer .btn-primary').textContent;
+  const name = (document.getElementById('authName').value || '').trim();
+  const email = (document.getElementById('authEmail').value || '').trim().toLowerCase();
+  const password = (document.getElementById('authPassword')?.value || '').trim();
+
+  if((mode === 'Create Account' && (!name || !email || !password)) || 
+     (mode === 'Sign In' && (!name || !email || !password))){ 
+    alert('⚠ Please enter all required fields'); 
+    return; 
+  }
+
+  try {
+    if(mode === 'Create Account'){
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName: name });
+      await setDoc(doc(db, "users", cred.user.uid), {
+        displayName: name,
+        email: email,
+        joinDate: new Date().toISOString(),
+        isPublic: true,
+        totalReviews: 0,
+        userReviews: []
+      });
+      currentUser = cred.user;
+      userProfile = { displayName: name, email };
+      alert("✅ Account created successfully!");
+    } else {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName: name });
+      currentUser = cred.user;
+      const profileSnap = await getDoc(doc(db, "users", currentUser.uid));
+      userProfile = profileSnap.exists() ? profileSnap.data() : null;
+      alert("✅ Logged in successfully!");
+    }
+    localStorage.setItem('linkedout-current-user', JSON.stringify(currentUser));
+    localStorage.setItem('linkedout-current-profile', JSON.stringify(userProfile));
+
+    updateSignInState();
+    hideAuthModal();
+    showAuthConfirm();
+  } catch (err) {
+    alert("❌ " + err.message);
+  }
+}
+
+async function signOutUser(){
+  try {
+    await signOut(auth);
+    currentUser = null;
+    userProfile = null;
+    localStorage.removeItem('linkedout-current-user');
+    localStorage.removeItem('linkedout-current-profile');
+    updateSignInState();
+    if(currentPage === 'profile') showPage('home');
+    alert('👋 Signed out successfully!');
+  } catch(err){
+    alert(err.message);
+  }
+}
+ const gbtn = document.getElementById('googleSignInBtn');
+if (gbtn) {
+  gbtn.addEventListener('click', googleLogin);
+}
+// Google Login
+async function googleLogin(){
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    currentUser = result.user;
+    const profileSnap = await getDoc(doc(db, "users", currentUser.uid));
+    if(!profileSnap.exists()){
+      await setDoc(doc(db, "users", currentUser.uid), {
+        displayName: currentUser.displayName,
+        email: currentUser.email,
+        joinDate: new Date().toISOString(),
+        isPublic: true,
+        totalReviews: 0,
+        userReviews: []
+      });
+    }
+    userProfile = profileSnap.exists() ? profileSnap.data() : {
+      displayName: currentUser.displayName,
+      email: currentUser.email
+    };
+    localStorage.setItem('linkedout-current-user', JSON.stringify(currentUser));
+    localStorage.setItem('linkedout-current-profile', JSON.stringify(userProfile));
+    updateSignInState();
+    hideAuthModal();
+    showAuthConfirm();
+    alert("✅ Logged in with Google!");
+  } catch(err){
+    alert("❌ " + err.message);
+  }
+}
+
+function loadCurrentUser(){ 
+  const u = localStorage.getItem('linkedout-current-user'); 
+  const p = localStorage.getItem('linkedout-current-profile'); 
+  if(u && p){ 
+    currentUser = JSON.parse(u); 
+    userProfile = JSON.parse(p); 
+  } 
+}
+
+function updateSignInState(){
+  const signInBtn = document.getElementById('signInBtn');
+  const signUpBtn = document.getElementById('signUpBtn');
+  const profileNav = document.getElementById('profile-nav');
+  const userChip = document.getElementById('userChip');
+
+  if(currentUser){
+    if(userChip){ 
+      userChip.textContent = currentUser.displayName || userProfile?.displayName || "User"; 
+      userChip.style.display='inline-flex'; 
+    }
+    if(signInBtn){ signInBtn.textContent = 'Sign Out'; signInBtn.onclick = signOutUser; }
+    if(signUpBtn){ signUpBtn.textContent = 'Add Review'; signUpBtn.onclick = ()=>{ showPage('home'); setTimeout(scrollToForm,100);} }
+    if(profileNav) profileNav.style.display = 'inline-block';
+  }else{
+    if(userChip) userChip.style.display='none';
+    if(signInBtn){ signInBtn.textContent='Sign In'; signInBtn.onclick = showSignInModal; }
+    if(signUpBtn){ signUpBtn.textContent='Sign Up'; signUpBtn.onclick = showSignUpModal; }
+    if(profileNav) profileNav.style.display = 'none';
+  }
+}
+
+// 🔹 Keep Firebase auth state synced
+onAuthStateChanged(auth, (user) => {
+  if(user){
+    currentUser = user;
+    loadCurrentUser();
+    updateSignInState();
+  } else {
+    currentUser = null;
+    userProfile = null;
+    updateSignInState();
+  }
+});
+
+    // ========= Reviews & Companies =========
+   // Load reviews from Firestore
+ async function loadReviewsFromFirestore() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "reviews"));
+    reviews = [];
+
+    querySnapshot.forEach((doc) => {
+      const companyReviews = doc.data().reviews || [];
+      // Add company id for reference
+      companyReviews.forEach((review) => {
+        reviews.push({ companyId: doc.id, ...review });
+      });
+    });
+
+    // Sort by timestamp (newest first)
+    reviews.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    filteredReviews = [...reviews];
+    renderReviews();
+    renderTopCompanies();
+
+  } catch (error) {
+    console.error("Error loading reviews:", error);
+    alert("Error loading reviews. Please refresh the page.");
+  }
+}
+
+
+// // Save review to Firestore
+// async function saveReview(review) {
+//    if (!currentUser) {
+//     showSignInModal();
+//     return;
+//   }
+
+//   const companyId = review.company.toLowerCase(); // normalized company name
+//   const companyRef = doc(db, "reviews", companyId);
+
+//   // Add user info
+//   review.userId = currentUser.uid;
+//   review.author = userProfile.displayName || currentUser.displayName;
+//   review.authorEmail = currentUser.email;
+//   review.timestamp = new Date().toISOString();
+//   review.upvotes = 0;
+//   review.upvoters = [];
+//   review.comments = [];
+
+//   try {
+//     await setDoc(
+//       companyRef,
+//       { reviews: arrayUnion(review) },
+//       { merge: true } // important: merges if doc exists
+//     );
+
+//     // Optionally update user review count
+//     await updateDoc(doc(db, "users", currentUser.uid), {
+//       totalReviews: increment(1)
+//     });
+
+//     // Update local UI arrays
+//     reviews.unshift({ id: companyId, ...review });
+//     filteredReviews = [...reviews];
+
+//     renderReviews();
+//     renderTopCompanies();
+//     showThankYouMessage();
+//     alert('Review Added Successfully');
+//     document.getElementById('reviewForm').reset();
+
+//   } catch (error) {
+//     console.error("Error saving review:", error);
+//     alert("Error saving review. Please try again.");
+//   }
+// }
+
+
+// Save review to Firestore
+async function saveReview(review) {
+  if (!currentUser) {
+    showSignInModal();
+    return;
+  }
+
+  const companyId = review.company.toLowerCase(); // normalized company name
+  const companyRef = doc(db, "reviews", companyId);
+
+  // Add user info
+  review.userId = currentUser.uid;
+  review.author = userProfile.displayName || currentUser.displayName;
+  review.authorEmail = currentUser.email;
+  review.timestamp = new Date().toISOString();
+  review.upvotes = 0;
+  review.upvoters = [];
+  review.comments = [];
+
+  try {
+    await setDoc(
+      companyRef,
+      { reviews: arrayUnion(review) },
+      { merge: true }
+    );
+
+    // ✅ Update user review count in Firestore
+    await setDoc(doc(db, "users", currentUser.uid), {
+      totalReviews: increment(1)
+    }, { merge: true });
+
+    // ✅ Re-fetch updated user profile & update counter immediately
+    const snap = await getDoc(doc(db, "users", currentUser.uid));
+    if (snap.exists()) {
+      userProfile = snap.data();
+      const cnt = document.getElementById('reviewCount');
+      if (cnt) cnt.textContent = userProfile.totalReviews || 0;
+    }
+
+    // Update local UI arrays
+    reviews.unshift({ id: companyId, ...review });
+    filteredReviews = [...reviews];
+
+    renderReviews();
+    renderTopCompanies();
+    showThankYouMessage();
+    alert('Review Added Successfully');
+    document.getElementById('reviewForm').reset();
+
+  } catch (error) {
+    console.error("Error saving review:", error);
+    alert("Error saving review. Please try again.");
+  }
+}
+
+    function getRatingStars(r){ return r==='positive'?'★★★★★':(r==='neutral'?'★★★☆☆':'★☆☆☆☆'); }
+    function getRatingNumber(r){ return r==='positive'?'5.0':(r==='neutral'?'3.0':'1.0'); }
+
+    function renderReviews(){
+      const feed = document.getElementById('reviewsFeed');
+      if(!filteredReviews.length){ feed.innerHTML = '<div class="no-reviews">No reviews yet. Be the first!</div>'; return; }
+      feed.innerHTML = filteredReviews.map(rv=> renderReviewCard(rv)).join('');
+    }
+
+    function renderReviewCard(rv){
+      // console.log("The review is :",rv.companyId)
+      const ts = timeAgo(rv.timestamp);
+
+      return `
+        <div class="review-card ${rv.rating}" id="review-${rv.companyId}">
+          <div class="review-header">
+            ${avatarOrLogo(rv)}
+            <div>
+              <div style="font-weight:900">${escapeHtml(rv.company)}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:#64748b">
+                <span class="tag ${rv.type}">${rv.type==='interview'?'Interview':rv.type==='workplace'?'Workplace':'General'}</span>
+                <span class="stars">${getRatingStars(rv.rating)}</span><span>${getRatingNumber(rv.rating)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="review-text">${escapeHtml(rv.text)} ${escapeHtml(rv.reviewId)}</div>
+          <div class="actions">
+            <button class="chip" id="upvote-${rv.companyId}" aria-pressed="${hasUpvoted(rv) ? 'true':'false'}" onclick="toggleUpvote('${rv.companyId}', '${rv.timestamp}')">▲ <span>${rv.upvotes||0}</span></button>
+          <button class="chip" onclick="toggleCommentBox('${rv.companyId}','${rv.timestamp}')">💬 Comment</button>
+
+          </div>
+          <div class="review-footer">
+            <span>${ts} • by ${escapeHtml(rv.author || 'Anonymous')}</span>
+            ${rv.linkedinUrl ? `<a class="linkedin-link" target="_blank" rel="noopener noreferrer" href="${rv.linkedinUrl}">📎 Linked profile</a>` : ''}
+          </div>
+          ${rv.jobPostingUrl ? `<div style="margin-top:6px"><a class="linkedin-link" target="_blank" rel="noopener noreferrer" href="${rv.jobPostingUrl}">🔗 Job posting</a></div>` : ''}
+          <div class="comment-area" id="comment-area-${rv.companyId}-${rv.timestamp}" style="display:none"></div>
+          <div class="comment-list" id="comment-list-${rv.companyId}">
+            ${renderComments(rv.comments,rv.timestamp, rv.companyId)}
+          </div>
+        </div>`;
+    }
+
+    function renderComments(comments,reviewTimestamp, reviewId, depth=0){
+      if(!comments || !comments.length) return '';
+      return comments.map(c=>{
+        const ts = timeAgo(c.timestamp);
+        return `
+          <div class="comment ${depth? 'nested':''}" id="comment-${c.id}">
+            <div style="width:30px;height:30px;border-radius:999px;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:800;color:#374151">${(c.author||'U').slice(0,1).toUpperCase()}</div>
+            <div class="comment-body">
+              <div class="comment-meta"><strong>${escapeHtml(c.author||'User')}</strong> · <span>${ts}</span></div>
+              <div>${escapeHtml(c.text)}</div>
+              <div style="margin-top:6px">
+                <button class="reply-btn" onclick="showReplyBox('${reviewId}','${c.id}')">Reply</button>
+              </div>
+              <div class="comment-area" id="reply-area-${reviewId}-${c.id}" style="display:none"></div>
+              ${c.replies && c.replies.length ? `<div class="nested">${renderComments(c.replies,reviewTimestamp, reviewId, depth+1)}</div>`:''}
+            </div>
+          </div>`
+      }).join('');
+    }
+
+    function toggleCommentBox(reviewId,reviewTimestamp){
+        console.log(reviewId)
+        console.log(reviewTimestamp)
+      const area = document.getElementById(`comment-area-${reviewId}-${reviewTimestamp}`);
+      if(!area) return;
+      const visible = area.style.display !== 'none';
+      area.style.display = visible ? 'none' : 'block';
+      if(!visible){
+        area.innerHTML = commentInputTemplate(reviewId,reviewTimestamp, null);
+      }
+    }
+
+    function showReplyBox(reviewId,reviewTimestamp, commentId){
+      const area = document.getElementById(`reply-area-${reviewId}-${commentId}`);
+      if(!area) return;
+      const visible = area.style.display !== 'none';
+      area.style.display = visible ? 'none' : 'block';
+      if(!visible){ area.innerHTML = commentInputTemplate(reviewId,reviewTimestamp, commentId); }
+    }
+
+    function commentInputTemplate(reviewId,reviewTimestamp, parentId){
+      const ph = parentId ? 'Write a reply…' : 'Write a comment…';
+      return `
+        <textarea class="comment-input" id="comment-input-${reviewId}-${reviewTimestamp}-${parentId||'root'}" placeholder="${ph}"></textarea>
+        <div class="comment-actions">
+          <button class="btn btn-primary" onclick="submitComment('${reviewId}','${reviewTimestamp}','${parentId||''}')">Post</button>
+
+          <button class="btn btn-outline" onclick="cancelComment('${reviewId}','${parentId||''}')">Cancel</button>
+        </div>`;
+    }
+
+    function cancelComment(reviewId, parentId){
+      if(parentId){ const el = document.getElementById(`reply-area-${reviewId}-${parentId}`); if(el){ el.style.display='none'; el.innerHTML=''; } }
+      else{ const el = document.getElementById(`comment-area-${reviewId}-reviewTimestamp`); if(el){ el.style.display='none'; el.innerHTML=''; } }
+    }
+
+  
+async function submitComment(reviewId,reviewTimestamp, parentId) {
+
+  if (!currentUser) {
+    showSignInModal();
+    return;
+  }
+
+  const inputId = `comment-input-${reviewId}-${reviewTimestamp}-${parentId || 'root'}`;
+  const input = document.getElementById(inputId);
+  const text = (input?.value || '').trim();
+
+  if (!text) {
+    alert('Please write something');
+    return;
+  }
+
+  try {
+    const reviewRef = doc(db, "reviews", reviewId);
+    const reviewSnap = await getDoc(reviewRef);
+    if (!reviewSnap.exists()) return;
+
+    const reviewsArray = reviewSnap.data().reviews || [];
+    console.log(reviewsArray)
+    const review = reviewsArray.find(r => r.timestamp === reviewTimestamp);
+    // console.log("the review is:",review)
+    if (!review) return;
+
+    const comment = {
+      id: 'c_' + Date.now() + Math.random().toString(36).slice(2, 6),
+      author: userProfile.displayName || currentUser.displayName,
+      text,
+      timestamp: new Date().toISOString(),
+      userId: currentUser.uid,
+      replies: []
+    };
+
+    if (parentId) {
+      // Nested reply
+      const addReply = (comments) => {
+        for (const c of comments) {
+          if (c.id === parentId) {
+            if (!c.replies) c.replies = [];
+            c.replies.unshift(comment);
+            return true;
+          }
+          if (c.replies && addReply(c.replies)) return true;
+        }
+        return false;
+      };
+      addReply(review.comments || []);
+    } else {
+      // Top-level comment
+      if (!review.comments) review.comments = [];
+      review.comments.unshift(comment);
+    }
+
+    // Update Firestore
+    await updateDoc(reviewRef, { reviews: reviewsArray });
+
+    // Update the UI immediately
+    const card = document.getElementById(`review-${reviewId}`);
+    if (card) {
+      card.outerHTML = renderReviewCard(review);
+    }
+
+    // Clear input
+    input.value = '';
+
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    alert("Error adding comment. Please try again.");
+  }
+}
+
+// Check if current user has upvoted
+function hasUpvoted(rv) {
+  if (!currentUser || !rv.upvoters) return false;
+  return rv.upvoters.includes(currentUser.uid);
+}
+
+async function toggleUpvote(companyId, reviewTimestamp) {
+  console.log(reviewTimestamp)
+  if (!currentUser) {
+    showSignInModal();
+    return;
+  }
+
+  try {
+    const companyRef = doc(db, "reviews", companyId);
+    const companySnap = await getDoc(companyRef);
+    if (!companySnap.exists()) return;
+
+    const reviewsArray = companySnap.data().reviews || [];
+    const review = reviewsArray.find(r => r.timestamp === reviewTimestamp);
+    if (!review) return;
+
+    const voterId = currentUser.uid;
+    const hasUpvoted = review.upvoters?.includes(voterId);
+
+    if (hasUpvoted) {
+      review.upvotes = Math.max(0, (review.upvotes || 0) - 1);
+      review.upvoters = review.upvoters.filter(id => id !== voterId);
+    } else {
+      review.upvotes = (review.upvotes || 0) + 1;
+      if (!review.upvoters) review.upvoters = [];
+      review.upvoters.push(voterId);
+    }
+
+    await updateDoc(companyRef, { reviews: reviewsArray });
+
+    // -------------------- UI FIX --------------------
+    // Update the button immediately
+    const btn = document.getElementById(`upvote-${companyId}`);
+    if (btn) {
+      btn.setAttribute('aria-pressed', !hasUpvoted ? 'true' : 'false');
+      const span = btn.querySelector('span');
+      if (span) span.textContent = review.upvotes;
+    }
+    // -----------------------------------------------
+
+  } catch (error) {
+    console.error("Error updating upvote:", error);
+    alert("Error updating vote. Please try again.");
+  }
+}
+
+
+
+
+
+    function timeAgo(iso){
+      const d = new Date(iso); const now = new Date();
+      const diff = Math.floor((now-d)/1000);
+      if(diff<60) return 'Just now';
+      const mins = Math.floor(diff/60); if(mins<60) return `${mins} min${mins>1?'s':''} ago`;
+      const hrs = Math.floor(mins/60); if(hrs<24) return `${hrs} hour${hrs>1?'s':''} ago`;
+      const days = Math.floor(hrs/24); return `${days} day${days>1?'s':''} ago`;
+    }
+
+    function buildCompanies(){
+      const map = {};
+      reviews.forEach(r=>{
+        const key = r.company;
+        if(!map[key]) map[key] = { name:key, total:0, pos:0, neu:0, neg:0, last:r.timestamp };
+        map[key].total++;
+        if(r.rating==='positive') map[key].pos++;
+        else if(r.rating==='neutral') map[key].neu++;
+        else map[key].neg++;
+        if(new Date(r.timestamp) > new Date(map[key].last)) map[key].last = r.timestamp;
+      });
+      return Object.values(map).map(c=>{
+        const score = (c.pos*5 + c.neu*3 + c.neg*1) / c.total;
+        const sentiment = score>=4?'positive':(score>=2.5?'neutral':'negative');
+        return {...c, avg:score, sentiment};
+      });
+    }
+
+    // ==== Top/Worst (weekly with graceful fallback) ====
+    function aggregateCompaniesFrom(list){
+      const map = {};
+      list.forEach(r=>{
+        const key = r.company;
+        if(!map[key]) map[key] = { name:key, total:0, pos:0, neu:0, neg:0, last:r.timestamp };
+        map[key].total++;
+        if(r.rating==='positive') map[key].pos++;
+        else if(r.rating==='neutral') map[key].neu++;
+        else map[key].neg++;
+        if(new Date(r.timestamp) > new Date(map[key].last)) map[key].last = r.timestamp;
+      });
+      return Object.values(map).map(c=>{
+        const score = (c.pos*5 + c.neu*3 + c.neg*1) / c.total;
+        const sentiment = score>=4?'positive':(score>=2.5?'neutral':'negative');
+        return {...c, avg:score, sentiment};
+      });
+    }
+
+    function inLastNDays(iso, days){ const d = new Date(iso); const now = new Date(); return (now - d) <= days*24*60*60*1000; }
+    function pickTopWorst(comps){ if(!comps.length) return {top:null,worst:null}; const byTop = [...comps].sort((a,b)=> b.avg - a.avg || b.total - a.total || new Date(b.last)-new Date(a.last)); const byWorst = [...comps].sort((a,b)=> a.avg - b.avg || b.total - a.total || new Date(b.last)-new Date(a.last)); return { top: byTop[0], worst: byWorst[0] }; }
+
+    function renderTopCompanies(){
+      const grid = document.getElementById('statsGrid');
+      const title = document.getElementById('statsTitle');
+      const caption = document.getElementById('statsCaption');
+      if(!grid) return;
+      const weekReviews = reviews.filter(r=> r.timestamp && inLastNDays(r.timestamp, 7));
+      let comps = aggregateCompaniesFrom(weekReviews);
+      let periodLabel = 'this week';
+      if(comps.length === 0){ const monthReviews = reviews.filter(r=> r.timestamp && inLastNDays(r.timestamp, 30)); comps = aggregateCompaniesFrom(monthReviews); periodLabel = comps.length ? 'this month' : 'all time'; }
+      const {top, worst} = pickTopWorst(comps);
+      title.textContent = `Top companies ${periodLabel}`;
+      caption.textContent = periodLabel==='this week' ? 'Based on reviews posted in the last 7 days.' : (periodLabel==='this month' ? 'Based on reviews posted in the last 30 days.' : 'Based on all-time reviews. Post new reviews to update weekly stats!');
+      if(!top && !worst){ grid.innerHTML = `<div class=\"no-reviews\" style=\"grid-column:1/-1\">No company data yet. Be the first to post a review!</div>`; return; }
+      function card(c,label){
+        return `
+          <div class=\"stat-item\" style=\"border:1px solid #eef2f7;border-radius:12px;padding:18px;background:#fff\">
+            <p style=\"text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:#64748b;font-weight:800;margin-bottom:8px;\">${label}</p>
+            <div style=\"display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px;\">
+              <div class=\"company-logo ${colorClassForCompany(c.name)}\">${getCompanyInitials(c.name)}</div>
+              <h4 style=\"font-size:20px;font-weight:900;color:#0f172a;margin:0;\">${escapeHtml(c.name)}</h4>
+            </div>
+            <div style=\"display:flex;align-items:center;gap:8px;justify-content:center;color:#64748b;font-size:12px;\">
+              <span class=\"rating-stars\">${getCompanyRatingStars(c.avg)}</span>
+              <span>${c.avg.toFixed(1)} avg · ${c.total} review${c.total>1?'s':''}</span>
+            </div>
+          </div>`;
+      }
+      let html = '';
+      if(top) html += card(top, 'Top Rated');
+      if(worst) html += card(worst, 'Worst Rated');
+      grid.innerHTML = html;
+    }
+
+    function getCompanyRatingStars(avg){ const full = Math.round(avg); return '★★★★★'.slice(0,full)+'☆☆☆☆☆'.slice(full); }
+
+    function renderCompanies(){
+      const grid = document.getElementById('companiesGrid');
+      let companies = buildCompanies();
+      const sortBy = document.getElementById('sortFilter').value;
+      if(sortBy==='worst-first') companies.sort((a,b)=>a.avg-b.avg);
+      if(sortBy==='best-first') companies.sort((a,b)=>b.avg-a.avg);
+      if(sortBy==='most-reviews') companies.sort((a,b)=>b.total-a.total);
+      if(sortBy==='recent') companies.sort((a,b)=>new Date(b.last)-new Date(a.last));
+      const term = (document.getElementById('companySearchInput').value||'').toLowerCase();
+      if(term) companies = companies.filter(c=>c.name.toLowerCase().includes(term));
+      if(!companies.length){ grid.innerHTML='<div class="no-reviews" style="grid-column:1/-1">No companies match.</div>'; return; }
+      grid.innerHTML = companies.map(c=>`
+        <div class="company-card" onclick="viewCompany('${encodeURIComponent(c.name)}')">
+          <div class="company-header">
+            <div class="company-logo ${colorClassForCompany(c.name)}">${getCompanyInitials(c.name)}</div>
+            <div class="company-info">
+              <h3>${escapeHtml(c.name)}</h3>
+              <p>${c.total} reviews • ${timeAgo(c.last)}</p>
+            </div>
+          </div>
+          <div class="company-stats">
+            <div class="stat"><div class="stat-number">${c.pos}</div><div class="stat-label">Positive</div></div>
+            <div class="stat"><div class="stat-number">${c.neu}</div><div class="stat-label">Neutral</div></div>
+            <div class="stat"><div class="stat-number">${c.neg}</div><div class="stat-label">Negative</div></div>
+          </div>
+          <div class="overall-rating">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="rating-number">${c.avg.toFixed(1)}</span>
+              <span class="rating-stars">${getCompanyRatingStars(c.avg)}</span>
+            </div>
+            <span class="rating-sentiment ${c.sentiment}">${c.sentiment[0].toUpperCase()+c.sentiment.slice(1)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function viewCompany(nameEncoded){
+       const name = decodeURIComponent(nameEncoded); 
+       filteredReviews = reviews.filter(r=>r.company===name);
+      console.log(filteredReviews)
+        showPage('home'); 
+        setTimeout(()=>document.getElementById('reviewsFeed').scrollIntoView({behavior:'smooth'}),120);
+
+       }
+     
+
+    // ========= Profile =========
+ async function renderProfile() {
+  if (!currentUser) { 
+    showSignInModal(); 
+    return; 
+  }
+
+  console.log("The current user is:", currentUser);
+  console.log("The user profile is:", userProfile);
+
+  // Subtitle
+  const sub = document.querySelector('#profile-page .page-subtitle'); 
+  if(sub){ 
+    sub.textContent = `Member since ${new Date(userProfile.joinDate || new Date()).toLocaleDateString()} • ${userProfile.totalReviews || 0} reviews posted`; 
+  }
+
+  // Display Name
+  const dn = document.getElementById('displayName'); 
+  if(dn){ 
+    dn.value = userProfile.displayName || currentUser.displayName || ''; 
+  }
+
+  // Profile Visibility
+  const vis = document.getElementById('profileVisibility'); 
+  if(vis){ 
+    vis.value = userProfile.isPublic ? 'public' : 'private'; 
+  }
+
+  // Review count
+  const cnt = document.getElementById('reviewCount'); 
+  if(cnt) cnt.textContent = userProfile.totalReviews || 0; // <-- totalReviews from user doc
+
+  // Fetch actual reviews from "reviews" collection for this user
+  const wrap = document.getElementById('userReviews'); 
+  let list = [];
+
+  // Only if wrap exists
+  if (wrap) {
+    try {
+      const reviewsSnapshot = await getDocs(collection(db, "reviews")); // all companies
+      reviewsSnapshot.forEach(docSnap => {
+        const companyReviews = docSnap.data().reviews || [];
+        companyReviews.forEach(rv => {
+          if (rv.userId === currentUser.uid) list.push(rv);
+        });
+      });
+
+      if (!list.length) {
+        wrap.innerHTML = `<p style="color:#64748b;text-align:center;padding:18px;">
+          No reviews yet. <a onclick="showPage('home'); setTimeout(scrollToForm, 100)" style="color:#3b82f6;cursor:pointer">Write your first review!</a>
+        </p>`;
+        return;
+      }
+
+      // Render reviews
+      wrap.innerHTML = list.map(rv => `
+        <div class="review-card ${rv.rating}">
+          <div class="review-header">
+            ${avatarOrLogo(rv)}
+            <div>
+              <div style="font-weight:900">${escapeHtml(rv.company)}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:#64748b">
+                <span class="tag ${rv.type}">${rv.type==='interview'?'Interview':rv.type==='workplace'?'Workplace':'General'}</span>
+                <span class="stars">${getRatingStars(rv.rating)}</span><span>${getRatingNumber(rv.rating)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="review-text">${escapeHtml(rv.text)}</div>
+          <div class="review-footer">
+            <span>${timeAgo(rv.timestamp || new Date())}</span>
+            <span style="color:#64748b">👁️ ${userProfile.isPublic ? 'Public' : 'Private'}</span>
+          </div>
+        </div>
+      `).join('');
+
+    } catch (error) {
+      console.error("Error fetching user reviews:", error);
+      wrap.innerHTML = `<p style="color:#64748b;text-align:center;padding:18px;">Unable to load reviews.</p>`;
+    }
+  }
+}
+
+
+    function generateRandomName(){
+  const adj = ADJECTIVES[Math.floor(Math.random()*ADJECTIVES.length)];
+  const noun = NOUNS[Math.floor(Math.random()*NOUNS.length)];
+  const num = Math.floor(Math.random()*900)+100; // 100-999
+  const handle = `${adj}${noun}${num}`;
+  const input = document.getElementById('displayName');
+  if(input) input.value = handle;
+  return handle;
+}
+    function updateProfileVisibility(){ const vis = document.getElementById('profileVisibility').value; userProfile.isPublic = (vis==='public'); }
+    function saveProfile(){
+      const dn = document.getElementById('displayName').value.trim(); if(dn) userProfile.displayName = dn;
+      localStorage.setItem('linkedout-current-profile', JSON.stringify(userProfile));
+      const users = JSON.parse(localStorage.getItem('linkedout-users') || '{}');
+      if(currentUser && users[currentUser.email]){ users[currentUser.email].profile = userProfile; localStorage.setItem('linkedout-users', JSON.stringify(users)); }
+      const btn = document.querySelector('#profile-page .btn.btn-primary'); const t = btn.textContent; btn.textContent='✓ Saved!'; btn.style.background='#10b981'; setTimeout(()=>{ btn.textContent=t; btn.style.background=''; },1200);
+    }
+
+    // ========= Navigation / Search =========
+    function showPage(id){
+      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(a=>a.classList.remove('active'));
+      document.getElementById(`${id}-page`).classList.add('active');
+      const nav = document.getElementById(`${id}-nav`); if(nav) nav.classList.add('active');
+      currentPage = id;
+      if(id==='browse') renderCompanies();
+      if(id==='profile') renderProfile();
+    }
+    function scrollToForm(){ document.getElementById('postForm')?.scrollIntoView({behavior:'smooth'}); }
+    function searchFromHero(opts={}){
+      const { scroll = false } = opts;
+      const term = (document.getElementById('heroSearchInput').value||'').toLowerCase().trim();
+      if(!term){ filteredReviews = [...reviews]; renderReviews(); return; }
+      filteredReviews = reviews.filter(r=> r.company.toLowerCase().includes(term) || r.text.toLowerCase().includes(term));
+      renderReviews();
+      if(scroll){ const el = document.getElementById('reviewsFeed'); if(el) el.scrollIntoView({behavior:'smooth'}); }
+    }
+
+    function showThankYouMessage(){
+      let el = document.getElementById('thankYouMessage');
+      if(!el){ el = document.createElement('div'); el.id='thankYouMessage'; el.className='thank-you-overlay'; el.innerHTML = `
+          <div class="thank-you-message">
+            <div class="thank-you-icon">🎉</div>
+            <div class="thank-you-title">Thank you!</div>
+            <div class="thank-you-text">Your review has been posted.</div>
+          </div>`; document.body.appendChild(el); }
+      el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1500);
+    }
+
+    // ========= Tests =========
+    function runTests(){
+      const out = document.getElementById('testResults'); if(!out) return; out.innerHTML = '';
+      const log = (ok, msg)=>{ const li = document.createElement('li'); li.textContent = (ok?'✅ ':'❌ ')+msg; out.appendChild(li); };
+      const now = new Date(); const old = new Date(now.getTime()-40*24*60*60*1000).toISOString(); const recent = new Date(now.getTime()-2*24*60*60*1000).toISOString();
+      const sample = [ {company:'A', rating:'positive', timestamp:recent, type:'general'}, {company:'B', rating:'negative', timestamp:recent, type:'general'}, {company:'A', rating:'negative', timestamp:old, type:'general'} ];
+      const comps = aggregateCompaniesFrom(sample); const pick = pickTopWorst(comps);
+      log(pick.top?.name==='A', 'Weekly top should be A');
+      log(pick.worst?.name==='B', 'Weekly worst should be B');
+      const ag2 = aggregateCompaniesFrom([]); log(ag2.length===0, 'Aggregate empty list returns empty');
+      log(getCompanyRatingStars(4.4).length===5, 'Stars returns 5 chars');
+      try{ renderTopCompanies(); log(true, 'renderTopCompanies runs'); }catch(e){ log(false, 'renderTopCompanies should not throw'); }
+    }
+document.addEventListener('DOMContentLoaded', () => {
+  loadCurrentUser();
+  updateSignInState();
+  
+  // Load reviews after auth state is determined
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      loadCurrentUser();
+      updateSignInState();
+      loadReviewsFromFirestore();
+    } else {
+      currentUser = null;
+      userProfile = null;
+      updateSignInState();
+      loadReviewsFromFirestore(); // Still load reviews (public data)
+    }
+  });
+  // Review form submission
+  document.getElementById('reviewForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    if (!currentUser) {
+      showSignInModal();
+      return;
+    }
+    const company = document.getElementById('companyName').value.trim().toLowerCase();
+    const text = document.getElementById('reviewText').value.trim();
+    
+    if (!company || !text) {
+      alert('Please fill in company name and review text');
+      return;
+    }
+    
+    const review = {
+      company,
+      type: document.getElementById('reviewType').value,
+      rating: document.getElementById('rating').value,
+      text,
+      linkedinUrl: document.getElementById('linkedinUrl').value.trim()
+    };
+    
+    saveReview(review);
+  });
+  
+  // Other event listeners
+  document.getElementById('sortFilter').addEventListener('change', renderCompanies);
+  document.getElementById('companySearchInput').addEventListener('input', renderCompanies);
+  document.getElementById('heroSearchInput').addEventListener('input', () => searchFromHero({scroll: false}));
+});
+
+    // expose
+    window.showPage = showPage;
+    window.showSignInModal = showSignInModal;
+    window.showSignUpModal = showSignUpModal;
+    window.hideAuthModal = hideAuthModal;
+    window.toggleAuthMode = toggleAuthMode;
+    window.processAuth = processAuth;
+    window.generateRandomName = generateRandomName;
+    window.updateProfileVisibility = updateProfileVisibility;
+    window.saveProfile = saveProfile;
+    window.signOutUser = signOutUser;
+    window.viewCompany = viewCompany;
+    window.scrollToForm = scrollToForm;
+    window.runTests = runTests;
+    window.toggleUpvote = toggleUpvote;
+    window.toggleCommentBox = toggleCommentBox;
+    window.submitComment = submitComment;
+    window.cancelComment = cancelComment;
+    window.showReplyBox = showReplyBox;
+(async function() {
+  // Load all reviews from Firestore
+  async function loadReviewsFromFirestore() {
+    try {
+      const querySnapshot = await getDocs(collection(db, "reviews"));
+      const reviews = [];
+
+      // Flatten reviews array from each company doc
+      querySnapshot.forEach(doc => {
+        const companyId = doc.id;
+        const companyReviews = doc.data().reviews || [];
+        companyReviews.forEach(review => {
+          reviews.push({ companyId, ...review });
+        });
+      });
+
+      // Sort by latest timestamp
+      reviews.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      console.log('Reviews loaded from Firestore:', reviews.length);
+      return reviews;
+    } catch (err) {
+      console.error("❌ Error loading reviews:", err);
+      return [];
+    }
+  }
+
+  // Show reviews for a single company
+  async function showCompanyOnlyWithLoader(name) {
+    console.log('Showing reviews for company:', name);
+
+    const grid = document.getElementById('companiesGrid');
+    const reviewsWrap = document.getElementById('browseCompanyReviews');
+    const title = document.getElementById('browseCompanyTitle');
+    const list = document.getElementById('browseCompanyReviewsList');
+
+    if (!grid || !reviewsWrap || !title || !list) {
+      console.warn('Required DOM elements missing');
+      return;
+    }
+
+    const key = (window.normalizeCompany ? window.normalizeCompany(name) : String(name).toLowerCase());
+
+    // Hide non-matching company cards
+    grid.querySelectorAll('.company-card').forEach(card => {
+      const h = card.querySelector('.company-info h3');
+      const cname = h ? h.textContent.trim() : (card.getAttribute('data-company') || '');
+      const ckey = (window.normalizeCompany ? window.normalizeCompany(cname) : String(cname).toLowerCase());
+      card.style.display = (ckey === key) ? '' : 'none';
+    });
+
+    // Fetch all reviews
+    const reviews = await loadReviewsFromFirestore();
+
+    // Filter reviews for the selected company
+    const items = reviews.filter(r => {
+      const n = (window.normalizeCompany ? window.normalizeCompany(r.company) : String(r.company || '').toLowerCase());
+      return n === key || r.companyId === key; // handle both cases
+    });
+    console.log(`Found ${items.length} reviews for company "${name}"`);
+
+    // Render reviews
+    title.textContent = window.prettyCompany ? prettyCompany(name) : name;
+    if (typeof renderReviewCard === 'function') {
+      list.innerHTML = items.map(renderReviewCard).join('');
+    } else {
+      list.innerHTML = items.map(rv => `<pre>${JSON.stringify(rv, null, 2)}</pre>`).join('');
+    }
+
+    if (!items.length) {
+      list.innerHTML = '<div class="no-reviews" style="margin-top:6px">No reviews yet for this company.</div>';
+    }
+    reviewsWrap.style.display = 'block';
+    reviewsWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Attach click listener for company cards
+  document.addEventListener('click', function(e) {
+    const card = e.target.closest && e.target.closest('.company-card');
+    if (!card) return;
+
+    let name = card.getAttribute('data-company');
+    if (!name) {
+      const h = card.querySelector('.company-info h3');
+      name = h ? h.textContent.trim() : '';
+    }
+
+    if (name) {
+      e.preventDefault();
+      console.log('Company card clicked:', name);
+      if (typeof showPage === 'function') showPage('browse');
+      setTimeout(() => showCompanyOnlyWithLoader(name), 10);
+    }
+  }, true);
+})();
+(function() {
+  function reviewScore(rv) {
+    return rv.rating === 'positive' ? 5 : (rv.rating === 'neutral' ? 3 : 1);
+  }
+
+async function ensureReviewsLoaded() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "reviews"));
+    const reviews = [];
+
+    querySnapshot.forEach((doc) => {
+      const companyReviews = doc.data().reviews || [];
+      companyReviews.forEach((review) => {
+        reviews.push({ companyId: doc.id, ...review });
+      });
+    });
+
+    // Sort by timestamp (newest first)
+    reviews.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    // Optional: update globals if needed
+    filteredReviews = [...reviews];
+
+    // Optional: render UI
+    renderReviews();
+    renderTopCompanies();
+
+    return reviews; // Return the reviews
+  } catch (err) {
+    console.error("❌ Error loading reviews:", err);
+    alert("Error loading reviews. Please refresh the page.");
+    return [];
+  }
+}
+
+
+
+// Helper to format timestamps
+function formatTimestamp(ts) {
+  const date = new Date(ts);
+  return isNaN(date) ? '-' : date.toLocaleString(); // fallback if invalid
+}
+
+// Helper to get timestamp as number for sorting
+function getTimestamp(ts) {
+  const date = new Date(ts);
+  return isNaN(date) ? 0 : date.getTime();
+}
+
+async function renderCompanyReviewsList(companyName) {
+  const list = document.getElementById('browseCompanyReviewsList');
+  const sorter = document.getElementById('companyReviewSort');
+  if (!list || !sorter) return;
+
+  try {
+    const allReviews = await ensureReviewsLoaded();
+
+    // Normalize company name for comparison
+    const normalize = window.normalizeCompany || ((name) => String(name || '').toLowerCase());
+    const target = normalize(companyName);
+
+    // Filter reviews for the specific company
+    const filtered = allReviews.filter(r => {
+      const key = normalize(r.company || r.companyId);
+      return key === target || r.companyId === target;
+    });
+
+    // Sort based on selected mode
+
+    const mode = sorter.value || 'newest';
+    // const newestFirst = filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    // const oldestFirst = filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    // const mostUpvotes = newestFirst.sort((a, b) => b.upvotes - a.upvotes);
+    // const leastUpvotes = data.sort((a, b) => a.upvotes - b.upvotes);
+
+
+    // console.log("newestFirst",newestFirst)
+    // console.log("oldestFirst",oldestFirst)
+    // console.log('mostUpvotes',mostUpvotes)
+    const sorted = filtered.slice().sort((a, b) => {
+      const timeA = getTimestamp(a.timestamp);
+      const timeB = getTimestamp(b.timestamp);
+      console.log(timeA)
+      console.log(timeB)
+      switch (mode) {
+        case 'newest':
+          return new Date(b.timestamp) - new Date(a.timestamp);
+        case 'oldest':
+          return new Date(a.timestamp) - new Date(b.timestamp);
+        case 'best':
+          return a.upvotes - b.upvotes
+        
+        case 'worst':
+          return 
+        default:
+          return 0;
+      }
+    });
+
+    // Render review cards
+    if (sorted.length) {
+      list.innerHTML = sorted.map(rv => 
+        (typeof renderReviewCard === 'function') 
+          ? renderReviewCard({ ...rv, formattedTimestamp: formatTimestamp(rv.timestamp) }) 
+          : `<pre>${JSON.stringify(rv, null, 2)}</pre>`
+      ).join('');
+    } else {
+      list.innerHTML = '<div class="no-reviews" style="margin-top:6px">No reviews yet for this company.</div>';
+    }
+  } catch (err) {
+    console.error("❌ Error rendering company reviews:", err);
+    list.innerHTML = '<div class="no-reviews" style="margin-top:6px">Failed to load reviews. Please refresh the page.</div>';
+  }
+}
+
+
+  function openCompanyInline(name) {
+    const wrap = document.getElementById('browseCompanyReviews');
+    const title = document.getElementById('browseCompanyTitle');
+    const sorter = document.getElementById('companyReviewSort');
+    if (!wrap || !title || !sorter) return;
+
+    title.textContent = (window.prettyCompany ? window.prettyCompany(name) : name);
+    wrap.dataset.company = name;
+    wrap.style.display = 'block';
+    renderCompanyReviewsList(name);
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Wire sorter to re-render the current company's list
+  const sorter = document.getElementById('companyReviewSort');
+  if (sorter && !sorter.__wired) {
+    sorter.__wired = true;
+    sorter.addEventListener('change', function() {
+      const wrap = document.getElementById('browseCompanyReviews');
+      const current = wrap ? (wrap.dataset.company || '') : '';
+      if (current) renderCompanyReviewsList(current);
+    });
+  }
+
+  // Click handler for company cards
+  document.addEventListener('click', function(e) {
+    const card = e.target.closest && e.target.closest('.company-card');
+    if (!card) return;
+
+    let name = card.getAttribute('data-company');
+    if (!name) {
+      const h = card.querySelector('.company-info h3');
+      name = h ? h.textContent.trim() : '';
+    }
+
+    if (name) {
+      e.preventDefault();
+      if (typeof showPage === 'function') showPage('browse');
+      setTimeout(() => {
+        // Hide other company cards
+        const grid = document.getElementById('companiesGrid');
+        if (grid) {
+          const key = (window.normalizeCompany ? window.normalizeCompany(name) : name.toLowerCase());
+          grid.querySelectorAll('.company-card').forEach(card => {
+            const h = card.querySelector('.company-info h3');
+            const cname = h ? h.textContent.trim() : (card.getAttribute('data-company') || '');
+            const ckey = (window.normalizeCompany ? window.normalizeCompany(cname) : cname.toLowerCase());
+            card.style.display = (ckey === key) ? '' : 'none';
+          });
+        }
+        openCompanyInline(name);
+      }, 10);
+    }
+  }, true);
+})();
+</script>
+
+<script>
+  (function(){
+    window.normalizeCompany = window.normalizeCompany || function(name){
+      return String(name||'').trim().replace(/\s+/g,' ').toLowerCase();
+    };
+    window.prettyCompany = window.prettyCompany || function(name){
+      return String(name||'').trim().replace(/\s+/g,' ').toLowerCase().replace(/\b([a-z])/g,(m,c)=>c.toUpperCase());
+    };
+
+    function filterCompaniesTo(name){
+      const grid = document.getElementById('companiesGrid');
+      const wrap = document.getElementById('browseCompanyReviews');
+      const title = document.getElementById('browseCompanyTitle');
+      const list  = document.getElementById('browseCompanyReviewsList');
+      if(!grid || !wrap || !title || !list) return;
+
+      const norm = normalizeCompany(name);
+      // Hide non-matching cards
+      const cards = grid.querySelectorAll('.company-card');
+      cards.forEach(card=>{
+        let cname = card.getAttribute('data-company');
+        if(!cname){
+          const h = card.querySelector('.company-info h3');
+          cname = h ? h.textContent.trim() : '';
+        }
+        const show = normalizeCompany(cname) === norm;
+        card.style.display = show ? '' : 'none';
+      });
+
+      // Render reviews
+      const items = (Array.isArray(window.reviews) ? window.reviews : []).filter(r=> normalizeCompany(r.company)===norm);
+      title.textContent = prettyCompany(name);
+      list.innerHTML = items.map(rv => (typeof renderReviewCard==='function' ? renderReviewCard(rv) : `<pre>${JSON.stringify(rv,null,2)}</pre>`)).join('');
+      wrap.style.display = 'block';
+      wrap.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+    window.filterCompaniesTo = filterCompaniesTo;
+
+    function resetCompanies(){
+      const grid = document.getElementById('companiesGrid');
+      const wrap = document.getElementById('browseCompanyReviews');
+      const list = document.getElementById('browseCompanyReviewsList');
+      if(grid){
+        grid.querySelectorAll('.company-card').forEach(c=> c.style.display='');
+      }
+      if(wrap){
+        wrap.style.display='none';
+      }
+      if(list){ list.innerHTML=''; }
+    }
+    window.resetCompanies = resetCompanies;
+
+    // Wire reset button
+    document.addEventListener('click', function(e){
+      if(e.target && e.target.id === 'browseResetCompanies'){
+        e.preventDefault();
+        resetCompanies();
+      }
+    });
+
+    // Click on company cards → filter grid + show reviews
+    document.addEventListener('click', function(e){
+      const card = e.target.closest && e.target.closest('.company-card');
+      if(!card) return;
+      let name = card.getAttribute('data-company');
+      if(!name){
+        const h = card.querySelector('.company-info h3');
+        name = h ? h.textContent.trim() : '';
+      }
+      if(name){
+        e.preventDefault();
+        if (typeof showPage === 'function') showPage('browse');
+        setTimeout(()=>filterCompaniesTo(name), 10);
+      }
+    }, false);
+  })();
+</script>
+<!-- === Company normalization + shared review click logic === -->
+<script>
+(function(){
+  // Helpers
+  window.normalizeCompany = window.normalizeCompany || function(name){
+    return String(name||'').trim().replace(/\s+/g,' ').toLowerCase();
+  };
+  window.prettyCompany = window.prettyCompany || function(name){
+    return String(name||'').trim().replace(/\s+/g,' ')
+      .toLowerCase().replace(/\b([a-z])/g,(m,c)=>c.toUpperCase());
+  };
+
+  // Ensure reviews are loaded globally (if user opened Browse first)
+  if (!Array.isArray(window.reviews) || !window.reviews.length){
+    try{ if (typeof loadReviewsFromLocalStorage === 'function') loadReviewsFromLocalStorage(); }catch(_){}
+  }
+
+  // Override aggregators to collapse duplicates by normalized name
+  if (typeof buildCompanies === 'function' && !buildCompanies.__wrapped){
+    const _origBuild = buildCompanies;
+    window.buildCompanies = function(){
+      const raw = _origBuild();
+      const map = {};
+      (raw||[]).forEach(c=>{
+        const key = normalizeCompany(c.name || c.company || '');
+        if(!map[key]){
+          map[key] = { ...c, name: prettyCompany(c.name || c.company || key) };
+        }else{
+          // Merge counts if model supplies them
+          ['total','pos','neu','neg'].forEach(k=>{ map[key][k]=(map[key][k]||0)+(c[k]||0); });
+          // Update last
+          if (c.last && (!map[key].last || new Date(c.last)>new Date(map[key].last))) map[key].last = c.last;
+          // Recompute avg if fields exist
+          const tot = (map[key].total||0);
+          const score = (map[key].pos*5 + map[key].neu*3 + map[key].neg*1) / (tot||1);
+          map[key].avg = score;
+          map[key].sentiment = score>=4?'positive':(score>=2.5?'neutral':'negative');
+        }
+      });
+      return Object.values(map);
+    };
+    window.buildCompanies.__wrapped = true;
+  }
+
+  if (typeof aggregateCompaniesFrom === 'function' && !aggregateCompaniesFrom.__wrapped){
+    const _origAgg = aggregateCompaniesFrom;
+    window.aggregateCompaniesFrom = function(list){
+      const res = _origAgg(list||[]);
+      const map = {};
+      (res||[]).forEach(c=>{
+        const key = normalizeCompany(c.name || c.company || '');
+        if(!map[key]) map[key] = { ...c, name: prettyCompany(c.name || key) };
+        else{
+          ['total','pos','neu','neg'].forEach(k=>{ map[key][k]=(map[key][k]||0)+(c[k]||0); });
+          if (c.last && (!map[key].last || new Date(c.last)>new Date(map[key].last))) map[key].last = c.last;
+          const tot = (map[key].total||0);
+          const score = (map[key].pos*5 + map[key].neu*3 + map[key].neg*1) / (tot||1);
+          map[key].avg = score;
+          map[key].sentiment = score>=4?'positive':(score>=2.5?'neutral':'negative');
+        }
+      });
+      return Object.values(map);
+    };
+    window.aggregateCompaniesFrom.__wrapped = true;
+  }
+
+  // After companies grid render, de-dup DOM cards by normalized name (belt + suspenders)
+  function dedupeCompanyCards(){
+    const grid = document.getElementById('companiesGrid');
+    if(!grid) return;
+    const seen = new Set();
+    grid.querySelectorAll('.company-card').forEach(card=>{
+      let name = card.getAttribute('data-company');
+      if(!name){
+        const h = card.querySelector('.company-info h3');
+        name = h ? h.textContent.trim() : '';
+      }
+      const key = normalizeCompany(name);
+      if(seen.has(key)) card.remove();
+      else{
+        seen.add(key);
+        card.setAttribute('data-company', prettyCompany(name));
+        // also fix heading case
+        const h = card.querySelector('.company-info h3');
+        if(h) h.textContent = prettyCompany(name);
+      }
+    });
+  }
+
+  // Try to de-dup after initial render and whenever the user changes sort/search
+  window.addEventListener('load', dedupeCompanyCards);
+  document.addEventListener('change', (e)=>{
+    if(e.target && (e.target.id==='sortFilter' || e.target.id==='companySearchInput')){
+      setTimeout(dedupeCompanyCards, 50);
+    }
+  });
+  document.addEventListener('input', (e)=>{
+    if(e.target && e.target.id==='companySearchInput'){
+      setTimeout(dedupeCompanyCards, 120);
+    }
+  });
+
+  // Clicking a card → show ONLY that company and list reviews from global feed
+  (function(){
+    function showCompanyOnly(name){
+      console.log(name)
+      const grid = document.getElementById('companiesGrid');
+      const reviewsWrap = document.getElementById('browseCompanyReviews');
+      const title = document.getElementById('browseCompanyTitle');
+      const list = document.getElementById('browseCompanyReviewsList');
+      // console.log(list)
+      if(!grid || !reviewsWrap || !title || !list) return;
+
+      const key = normalizeCompany(name);
+
+      // Hide non-matching cards
+      grid.querySelectorAll('.company-card').forEach(card=>{
+        const h = card.querySelector('.company-info h3');
+        const cname = h ? h.textContent.trim() : (card.getAttribute('data-company')||'');
+        card.style.display = (normalizeCompany(cname)===key) ? '' : 'none';
+      });
+
+      // Collect reviews from global reviews array (used on Home)
+      const src = Array.isArray(window.reviews) ? window.reviews : [];
+      console.log(src)
+      const items = src.filter(r => normalizeCompany(r.company)===key);
+
+      // Render
+      title.textContent = prettyCompany(name);
+      list.innerHTML = items.map(rv => (typeof renderReviewCard==='function' ? renderReviewCard(rv) : `<pre>${JSON.stringify(rv,null,2)}</pre>`)).join('');
+      reviewsWrap.style.display = 'block';
+      reviewsWrap.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+
+    // Reset button shows all companies again
+    function resetCompanyFilter(){
+      const grid = document.getElementById('companiesGrid');
+      const reviewsWrap = document.getElementById('browseCompanyReviews');
+      const list = document.getElementById('browseCompanyReviewsList');
+      if(grid) grid.querySelectorAll('.company-card').forEach(c=> c.style.display='');
+      if(reviewsWrap) reviewsWrap.style.display='none';
+      if(list) list.innerHTML='';
+    }
+
+    document.addEventListener('click', function(e){
+      // handle card click
+      const card = e.target.closest && e.target.closest('.company-card');
+      if(card){
+        let name = card.getAttribute('data-company');
+        if(!name){
+          const h = card.querySelector('.company-info h3');
+          name = h ? h.textContent.trim() : '';
+        }
+        if(name){
+          e.preventDefault();
+          if (typeof showPage === 'function') showPage('browse');
+          setTimeout(()=>showCompanyOnly(name), 10);
+        }
+      }
+      if(e.target && e.target.id==='browseResetCompanies'){
+        e.preventDefault();
+        resetCompanyFilter();
+      }
+    });
+  })();
+})();
+
+</script>
+<!-- === /addon === -->
+<!-- <script>
+
+</script> -->
+
+<script>
+
+
+</script>
+
+<!-- Minimal Firebase wiring injected (keeps your exact UI) -->
+<script type="module">
+
+
+  // Helpers
+  const $ = (id)=>document.getElementById(id);
+  const bySel = (sel)=>document.querySelector(sel);
+  const has = (x)=>!!document.getElementById(x);
+
+  // Hook existing UI elements if present
+  const reviewForm = $('reviewForm') || bySel('form');
+  const companyEl = $('companyName') || bySel('#companyInput');
+  const reviewTypeEl = $('reviewType') || bySel('#typeInput');
+  const ratingEl = $('rating') || bySel('#ratingInput');
+  const textEl = $('reviewText') || bySel('#textInput');
+  const linkedinEl = $('linkedinUrl') || bySel('#profileLinkInput');
+  const jobLinkEl = $('jobPostingUrl') || $('jobLink') || bySel('#jobLinkInput');
+  const signInBtn = $('signInBtn');
+  const signUpBtn = $('signUpBtn');
+  const signOutBtn = $('signOutBtn');
+  const authName = $('authName');
+  const authEmail = $('authEmail');
+  const authPassword = $('authPassword');
+  const googleBtn = $('googleSignInBtn') || $('googleBtn');
+  const userChip = $('userChip');
+
+  // Use your own modal show/hide if available
+  const openModal = ()=>{
+    if (window.showSignInModal) window.showSignInModal();
+    else if (bySel('#authModal')) bySel('#authModal').classList.add('show') || (bySel('#authModal').style.display='flex');
+  };
+  const closeModal = ()=>{
+    if (window.hideAuthModal) window.hideAuthModal();
+    else if (bySel('#authModal')) bySel('#authModal').classList.remove('show') || (bySel('#authModal').style.display='none');
+  };
+
+  // Toggle header state (reuses your existing function if present)
+  function reflectHeader(user){
+    if (typeof window.updateSignInState === 'function') { window.currentUser = user; return window.updateSignInState(); }
+    if (!signInBtn || !signUpBtn || !signOutBtn) return;
+    if (user){
+      signInBtn.textContent = 'Sign Out';
+      signInBtn.onclick = ()=>signOut(auth);
+      if (signUpBtn) { signUpBtn.textContent = 'Add Review'; signUpBtn.onclick = ()=>{ if (window.showPage) { window.showPage('home'); setTimeout(()=>{ if (window.scrollToForm) window.scrollToForm(); }, 100); } }; }
+      signOutBtn.style.display = 'inline-block';
+      if (userChip) { userChip.style.display='inline-flex'; userChip.textContent = user.displayName || user.email || 'User'; }
+    }else{
+      if (userChip) userChip.style.display='none';
+      if (signInBtn){ signInBtn.textContent='Sign In'; signInBtn.onclick = openModal; }
+      if (signUpBtn){ signUpBtn.textContent='Sign Up'; signUpBtn.onclick = openModal; }
+      if (signOutBtn) signOutBtn.style.display='none';
+    }
+  }
+
+  // Auth state
+  onAuthStateChanged(auth, async (user)=>{
+    reflectHeader(user);
+    if (user && window.__pendingDraft){
+      const d = window.__pendingDraft; window.__pendingDraft = null;
+      try{ await doPost(d); }catch(e){ console.warn('Retry post failed', e); }
+    }
+  });
+
+  // Email/Password actions (wire to your existing processAuth if used)
+  async function emailAction(mode){
+    const email = (authEmail?.value || '').trim().toLowerCase();
+    const pass  = (authPassword?.value || '').trim();
+    const name  = (authName?.value || '').trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('Enter a valid email.');
+    if((pass||'').length < 6) return alert('Password must be at least 6 characters.');
+    try{
+      if (mode === 'signup'){
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        if (name) await updateProfile(cred.user, { displayName: name });
+        await setDoc(doc(db,'users',cred.user.uid), { uid: cred.user.uid, email, displayName: name || cred.user.displayName || '', createdAt: serverTimestamp() }, { merge:true });
+      }else{
+        await signInWithEmailAndPassword(auth, email, pass);
+      }
+      closeModal();
+    }catch(e){ alert(e.message); }
+  }
+
+  // Try to hook your modal's primary button text to determine mode
+  (function hookEmailButtons(){
+    const primary = bySel('#authFormContainer .btn-primary') || bySel('#authPrimary');
+    if (primary){
+      primary.addEventListener('click', ()=>{
+        const txt = (primary.textContent || '').toLowerCase();
+        emailAction(txt.includes('create') || txt.includes('sign up') ? 'signup' : 'signin');
+      });
+    }
+  })();
+
+  if (signInBtn) signInBtn.onclick = openModal;
+  if (signUpBtn) signUpBtn.onclick = openModal;
+
+  if (googleBtn){
+    alert('i am click')
+    googleBtn.addEventListener('click', async ()=>{
+      try{
+        const cred = await signInWithPopup(auth, provider);
+        await setDoc(doc(db,'users',cred.user.uid), {
+          uid: cred.user.uid, email: cred.user.email, displayName: cred.user.displayName || cred.user.email.split('@')[0], lastLogin: serverTimestamp()
+        }, { merge:true });
+        closeModal();
+      }catch(e){
+        alert(e.message + '\\nTip: add your domain in Auth > Settings > Authorized domains, and serve with http(s).');
+      }
+    });
+  }
+
+  // Guard the review post with a capturing listener that runs BEFORE any other handlers
+  if (reviewForm){
+    reviewForm.addEventListener('submit', (evt)=>{
+      const user = auth.currentUser;
+      if (!user){
+        evt.preventDefault(); evt.stopImmediatePropagation();
+        // Capture draft so we can post after sign-in
+        window.__pendingDraft = {
+          company: companyEl?.value?.trim() || '',
+          type: (reviewTypeEl?.value || '').toLowerCase().replace(' ',''),
+          rating: ratingEl?.value || 'neutral',
+          text: textEl?.value?.trim() || '',
+          linkedinUrl: linkedinEl?.value?.trim() || '',
+          jobLink: jobLinkEl?.value?.trim() || ''
+        };
+        openModal();
+      }
+    }, true); // capture phase
+  }
+
+  // Post to Firestore (used both normally and after login resume)
+  async function doPost(draft){
+    const user = auth.currentUser;
+    if (!user) throw new Error('Not signed in');
+    const ratingMap = { positive:5, neutral:3, negative:1 };
+    const rating = Number(draft.rating) || ratingMap[draft.rating] || 3;
+    const company = draft.company || 'Company';
+    const payload = {
+      userId: user.uid,
+      userEmail: user.email || '',
+      userName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+      company: company,
+      companyKey: (company||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''),
+      type: draft.type || 'general',
+      rating: rating,
+      text: draft.text || '',
+      linkedinUrl: draft.linkedinUrl || '',
+      jobLink: draft.jobLink || '',
+      createdAt: serverTimestamp()
+    };
+    await addDoc(collection(db, 'reviews'), payload);
+    // Clear fields if the same DOM exists
+    if (companyEl) companyEl.value='';
+    if (textEl) textEl.value='';
+    if (linkedinEl) linkedinEl.value='';
+    if (jobLinkEl) jobLinkEl.value='';
+    alert('Review posted!');
+  }
+
+  // Try to wire your existing "saveReview" if present to go through Firestore
+  if (window.saveReview){
+    const orig = window.saveReview;
+    window.saveReview = async function(review){
+      if (!auth.currentUser){
+        window.__pendingDraft = {
+          company: review.company,
+          type: review.type,
+          rating: review.rating,
+          text: review.text,
+          linkedinUrl: review.linkedinUrl,
+          jobLink: review.jobPostingUrl || review.jobLink || ''
+        };
+        openModal(); return;
+      }
+      await doPost(window.__pendingDraft || review);
+      window.__pendingDraft = null;
+      try{ return orig(review); }catch{}
+    }
+  }
+
+  // Live stream reviews into your in-memory arrays if your UI uses them
+  const feedEl = $('reviewsFeed');
+  if (feedEl){
+    onSnapshot(query(collection(db,'reviews'), orderBy('createdAt','desc')), snap=>{
+      const list = [];
+      snap.forEach(doc => {
+        const r = doc.data();
+        list.push({
+          id: doc.id,
+          company: r.company,
+          type: r.type || 'general',
+          rating: r.rating >=4 ? 'positive' : (r.rating<=2 ? 'negative' : 'neutral'),
+          text: r.text || '',
+          author: r.userName || 'User',
+          authorEmail: r.userEmail || null,
+          linkedinUrl: r.linkedinUrl || '',
+          jobPostingUrl: r.jobLink || '',
+          timestamp: new Date().toISOString(),
+          upvotes: 0, upvoters: [], comments: []
+        });
+      });
+      // Replace your global arrays if present so render functions work
+      window.reviews = list;
+      window.filteredReviews = [...list];
+      if (typeof window.renderReviews === 'function') window.renderReviews();
+      if (typeof window.renderTopCompanies === 'function') window.renderTopCompanies();
+    });
+  }
+</script>
+</body>
+</html>
